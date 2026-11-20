@@ -1,8 +1,140 @@
-import { Link } from 'react-router-dom';
-import { Pencil, Trash2, Plus } from 'lucide-react';
-import { useState } from 'react';
-import { Dialog } from '../components/Dialog';
-import { Card, Empty } from '../components/Card';
-import { useStore } from '../lib/context';
-import { data, isOwner } from '../lib/data';
-export default function Collection({mode}:{mode:'saved'|'mine'}){const {listings,saved,refresh,toast,loading,error}=useStore();const [deleting,setDeleting]=useState<string|null>(null);const [busy,setBusy]=useState(false);const rows=listings.filter(l=>mode==='saved'?saved.includes(l.id):isOwner(l.id));async function remove(){if(!deleting)return;setBusy(true);try{await data.remove(deleting);await refresh();setDeleting(null);toast('Your sitting request has been removed.');}catch{toast('Couldn’t remove the request. Please try again.');}finally{setBusy(false);}}return <div className="standard-page"><div className="page-heading"><div className="eyebrow">{mode==='saved'?'THE ONES THAT CAUGHT YOUR EYE':'A LITTLE SPACE FOR YOUR FAMILY'}</div><h1>{mode==='saved'?'Good people. Kept close.':'Your sitting requests.'}</h1><p>{mode==='saved'?'A few familiar faces for your next little adventure.':'Posted from this browser. Ready for a great connection.'}</p></div>{loading?<p role="status">Gathering your requests…</p>:error?<Empty text={error} action={<button className="button" onClick={()=>void refresh()}>Try again</button>}/>:rows.length?<div className="listing-grid">{rows.map(l=><div key={l.id}><Card listing={l}/>{mode==='mine'&&<div className="owner-actions"><Link className="button" to={`/edit/${l.id}`}><Pencil size={15}/>Edit</Link><button className="button" onClick={()=>setDeleting(l.id)}><Trash2 size={15}/>Delete</button></div>}</div>)}</div>:<Empty title={mode==='saved'?'Your favorites start with a little heart.':'Your village starts here.'} text={mode==='saved'?'Save a sitting request and it will be right here when you need it.':'Share a little about your family. Find someone who fits.'} action={<Link className="button primary" to={mode==='saved'?'/':'/post'}>{mode==='saved'?'Meet the families':<><Plus size={16}/>Post a sitting request</>}</Link>}/>} {deleting&&<Dialog titleId="delete-title" onClose={()=>{if(!busy)setDeleting(null);}}><h2 id="delete-title">Take this request down?</h2><p>This removes your sitting request. You can always post a new one.</p><div className="form-actions"><button autoFocus className="button" onClick={()=>setDeleting(null)} disabled={busy}>Keep it</button><button className="button primary" disabled={busy} onClick={()=>void remove()}>{busy?'Removing…':'Delete request'}</button></div></Dialog>}</div>}
+import { Link } from "react-router-dom";
+import { Pencil, Trash2, Plus } from "lucide-react";
+import { useState } from "react";
+import { Dialog } from "../components/Dialog";
+import { Card, Empty } from "../components/Card";
+import { useStore } from "../lib/context";
+import { data, isOwner } from "../lib/data";
+export default function Collection({ mode }: { mode: "saved" | "mine" }) {
+  const { listings, saved, refresh, toast, loading, error } = useStore();
+  const [deleting, setDeleting] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const rows = listings.filter((l) =>
+    mode === "saved" ? saved.includes(l.id) : isOwner(l.id),
+  );
+  async function remove() {
+    if (!deleting) return;
+    setBusy(true);
+    try {
+      await data.remove(deleting);
+      await refresh();
+      setDeleting(null);
+      toast("Your sitting request has been removed.");
+    } catch {
+      toast("Couldn’t remove the request. Please try again.");
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <div className="standard-page">
+      <div className="page-heading">
+        <div className="eyebrow">
+          {mode === "saved"
+            ? "THE ONES THAT CAUGHT YOUR EYE"
+            : "A LITTLE SPACE FOR YOUR FAMILY"}
+        </div>
+        <h1>
+          {mode === "saved"
+            ? "Good people. Kept close."
+            : "Your sitting requests."}
+        </h1>
+        <p>
+          {mode === "saved"
+            ? "A few familiar faces for your next little adventure."
+            : "Posted from this browser. Ready for a great connection."}
+        </p>
+      </div>
+      {loading ? (
+        <p role="status">Gathering your requests…</p>
+      ) : error ? (
+        <Empty
+          text={error}
+          action={
+            <button className="button" onClick={() => void refresh()}>
+              Try again
+            </button>
+          }
+        />
+      ) : rows.length ? (
+        <div className="listing-grid">
+          {rows.map((l) => (
+            <div key={l.id}>
+              <Card listing={l} />
+              {mode === "mine" && (
+                <div className="owner-actions">
+                  <Link className="button" to={`/edit/${l.id}`}>
+                    <Pencil size={15} />
+                    Edit
+                  </Link>
+                  <button className="button" onClick={() => setDeleting(l.id)}>
+                    <Trash2 size={15} />
+                    Delete
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <Empty
+          title={
+            mode === "saved"
+              ? "Your favorites start with a little heart."
+              : "Your village starts here."
+          }
+          text={
+            mode === "saved"
+              ? "Save a sitting request and it will be right here when you need it."
+              : "Share a little about your family. Find someone who fits."
+          }
+          action={
+            <Link
+              className="button primary"
+              to={mode === "saved" ? "/" : "/post"}
+            >
+              {mode === "saved" ? (
+                "Meet the families"
+              ) : (
+                <>
+                  <Plus size={16} />
+                  Post a sitting request
+                </>
+              )}
+            </Link>
+          }
+        />
+      )}{" "}
+      {deleting && (
+        <Dialog
+          titleId="delete-title"
+          onClose={() => {
+            if (!busy) setDeleting(null);
+          }}
+        >
+          <h2 id="delete-title">Take this request down?</h2>
+          <p>
+            This removes your sitting request. You can always post a new one.
+          </p>
+          <div className="form-actions">
+            <button
+              autoFocus
+              className="button"
+              onClick={() => setDeleting(null)}
+              disabled={busy}
+            >
+              Keep it
+            </button>
+            <button
+              className="button primary"
+              disabled={busy}
+              onClick={() => void remove()}
+            >
+              {busy ? "Removing…" : "Delete request"}
+            </button>
+          </div>
+        </Dialog>
+      )}
+    </div>
+  );
+}

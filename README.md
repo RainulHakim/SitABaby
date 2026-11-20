@@ -17,7 +17,7 @@ Push this directory to a GitHub repository. Replace `YOUR_GITHUB_REPOSITORY_URL`
 - [Deploy with Vercel](https://vercel.com/new/clone?repository-url=YOUR_GITHUB_REPOSITORY_URL)
 - [Deploy with Netlify](https://app.netlify.com/start/deploy?repository=YOUR_GITHUB_REPOSITORY_URL)
 
-For shared mode, set both `VITE_` variables in the hosting dashboard **before building**. Without them, the deployed app runs in device-only demo mode. SPA route fallbacks are included for both hosts. Set the `og:image` URL in `index.html` to your final absolute domain URL for social crawlers; the bundled SVG is a ready-to-use source for a PNG social image if your target platform requires raster images.
+For shared mode, set both `VITE_` variables in the hosting dashboard **before building**. Without them, the deployed app runs in device-only demo mode. SPA route fallbacks are included for both hosts. Set the `og:image` URL in `index.html` to your final absolute domain URL for social crawlers. A PNG social card and its editable SVG source are bundled.
 
 ## How the app works
 
@@ -31,11 +31,13 @@ For shared mode, set both `VITE_` variables in the hosting dashboard **before bu
 
 ## Commands
 
-| Command | Purpose |
-| --- | --- |
-| `npm run dev` | Vite development server |
-| `npm run build` | Strict TypeScript check and production bundle |
-| `npm run preview` | Preview the production bundle |
-| `npm test` | Data persistence, ownership, filtering helpers, and privacy validation checks |
+| Command            | Purpose                                                                       |
+| ------------------ | ----------------------------------------------------------------------------- |
+| `npm run dev`      | Vite development server                                                       |
+| `npm run build`    | Strict TypeScript check and production bundle                                 |
+| `npm run preview`  | Preview the production bundle                                                 |
+| `npm run test:e2e` | Desktop and 360px mobile browser flows (uses installed Google Chrome)         |
+| `npm run format`   | Format the source files                                                       |
+| `npm test`         | Data persistence, ownership, filtering helpers, and privacy validation checks |
 
 The app uses React, React Router, Tailwind CSS v4, Framer Motion, Lucide, and `@supabase/supabase-js`; no component kit. Unsplash images and Google Fonts require an internet connection. Replace remote photos with your own assets if you need completely offline visuals. Respect reduced-motion preferences, use the theme toggle for light/dark mode, and see the in-app Safety tips before arranging a sit.

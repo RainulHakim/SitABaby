@@ -1,2 +1,58 @@
-import { useEffect, useRef, type ReactNode } from 'react';
-export function Dialog({titleId,onClose,children}:{titleId:string;onClose:()=>void;children:ReactNode}){const ref=useRef<HTMLDivElement>(null);useEffect(()=>{const previous=document.activeElement as HTMLElement;const old=document.body.style.overflow;document.body.style.overflow='hidden';const controls=()=>ref.current?.querySelectorAll<HTMLElement>('button:not(:disabled),a[href],input');controls()?.[0]?.focus();function key(e:KeyboardEvent){if(e.key==='Escape')onClose();if(e.key==='Tab'){const items=controls();if(!items?.length)return;const first=items[0],last=items[items.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}}document.addEventListener('keydown',key);return()=>{document.body.style.overflow=old;document.removeEventListener('keydown',key);previous?.focus();};},[onClose]);return <div className="modal-layer"><div className="modal-overlay" onClick={onClose}/><div ref={ref} className="confirm-dialog" role="alertdialog" aria-modal="true" aria-labelledby={titleId}>{children}</div></div>}
+import { useEffect, useRef, type ReactNode } from "react";
+export function Dialog({
+  titleId,
+  onClose,
+  children,
+}: {
+  titleId: string;
+  onClose: () => void;
+  children: ReactNode;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const previous = document.activeElement as HTMLElement;
+    const old = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const controls = () =>
+      ref.current?.querySelectorAll<HTMLElement>(
+        "button:not(:disabled),a[href],input",
+      );
+    controls()?.[0]?.focus();
+    function key(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+      if (e.key === "Tab") {
+        const items = controls();
+        if (!items?.length) return;
+        const first = items[0],
+          last = items[items.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    }
+    document.addEventListener("keydown", key);
+    return () => {
+      document.body.style.overflow = old;
+      document.removeEventListener("keydown", key);
+      previous?.focus();
+    };
+  }, [onClose]);
+  return (
+    <div className="modal-layer">
+      <div className="modal-overlay" onClick={onClose} />
+      <div
+        ref={ref}
+        className="confirm-dialog"
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+      >
+        {children}
+      </div>
+    </div>
+  );
+}

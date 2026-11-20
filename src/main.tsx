@@ -1,12 +1,185 @@
-import React, { Suspense, lazy } from 'react';
-import ReactDOM from 'react-dom/client';
-import { BrowserRouter, Routes, Route, Link, NavLink, useLocation } from 'react-router-dom';
-import { Heart, Plus, Compass, UserRound, Moon, Sun, ShieldCheck, Menu, X } from 'lucide-react';
-import { AnimatePresence, LayoutGroup, motion, MotionConfig } from 'framer-motion';
-import { StoreProvider, useStore } from './lib/context';
-import { demoMode, readLocal, writeLocal } from './lib/data';
-import Browse from './pages/Browse';
-import './styles.css';
-const Detail=lazy(()=>import('./pages/Detail'));const Post=lazy(()=>import('./pages/Post'));const Collection=lazy(()=>import('./pages/Collection'));const Info=lazy(()=>import('./pages/Info'));
-function App(){const {saved}=useStore();const location=useLocation();const [dark,setDark]=React.useState(()=>readLocal('rb-dark',window.matchMedia('(prefers-color-scheme: dark)').matches));const [menu,setMenu]=React.useState(false);React.useEffect(()=>{document.documentElement.dataset.theme=dark?'dark':'light';writeLocal('rb-dark',dark);},[dark]);React.useEffect(()=>{window.scrollTo(0,0);setMenu(false);},[location.pathname]);return <><header className="site-header"><div className="header-inner"><Link to="/" className="wordmark">rent a baby<span>.</span><small>little people. big connections.</small></Link><nav className="desktop-nav" aria-label="Main navigation"><NavLink to="/" end>Find a family</NavLink><NavLink to="/saved">Saved{saved.length>0&&<span className="nav-count">{saved.length}</span>}</NavLink><NavLink to="/mine">My listings</NavLink></nav><div className="header-actions"><button className="theme-toggle icon-button" onClick={()=>setDark(!dark)} aria-label={`Switch to ${dark?'light':'dark'} mode`}>{dark?<Sun size={19}/>:<Moon size={19}/>}</button><Link to="/post" className="button primary header-post"><Plus size={17}/>Post a sitting request</Link><button className="mobile-menu icon-button" onClick={()=>setMenu(!menu)} aria-label="Toggle menu">{menu?<X/>:<Menu/>}</button></div></div>{menu&&<nav className="mobile-dropdown"><Link to="/safety">Safety tips</Link><Link to="/about">About us</Link></nav>}</header><main><Suspense fallback={<div className="page-loading">Making a little room…</div>}><LayoutGroup><AnimatePresence initial={false} mode="popLayout"><motion.div key={location.pathname} initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} transition={{duration:.18}}><Routes location={location}><Route path="/" element={<Browse/>}/><Route path="/l/:id" element={<Detail/>}/><Route path="/post" element={<Post/>}/><Route path="/edit/:id" element={<Post/>}/><Route path="/saved" element={<Collection mode="saved"/>}/><Route path="/mine" element={<Collection mode="mine"/>}/><Route path="/safety" element={<Info kind="safety"/>}/><Route path="/about" element={<Info kind="about"/>}/><Route path="*" element={<Info kind="missing"/>}/></Routes></motion.div></AnimatePresence></LayoutGroup></Suspense></main><footer className="site-footer"><div><Link to="/" className="footer-logo">rent a baby<span>.</span></Link><span>A little help. A lot of heart.</span></div><p><ShieldCheck size={16}/>Always meet first and check references. <Link to="/safety">Safety tips</Link></p><nav><Link to="/about">About</Link><span>Made for real life.</span></nav></footer>{demoMode&&<div className="demo-pill"><span/>Demo mode: listings saved on this device only</div>}<nav className="bottom-nav" aria-label="Mobile navigation"><NavLink to="/" end><Compass/>Browse</NavLink><NavLink to="/saved"><Heart/>Saved</NavLink><NavLink to="/post"><Plus/>Post</NavLink><NavLink to="/mine"><UserRound/>Mine</NavLink></nav></>}
-ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><BrowserRouter><MotionConfig reducedMotion="user"><StoreProvider><App/></StoreProvider></MotionConfig></BrowserRouter></React.StrictMode>);
+import React, { Suspense, lazy } from "react";
+import ReactDOM from "react-dom/client";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Link,
+  NavLink,
+  useLocation,
+} from "react-router-dom";
+import {
+  Heart,
+  Plus,
+  Compass,
+  UserRound,
+  Moon,
+  Sun,
+  ShieldCheck,
+  Menu,
+  X,
+} from "lucide-react";
+import {
+  AnimatePresence,
+  LayoutGroup,
+  motion,
+  MotionConfig,
+} from "framer-motion";
+import { StoreProvider, useStore } from "./lib/context";
+import { demoMode, readLocal, writeLocal } from "./lib/data";
+import Browse from "./pages/Browse";
+import "./styles.css";
+const Detail = lazy(() => import("./pages/Detail"));
+const Post = lazy(() => import("./pages/Post"));
+const Collection = lazy(() => import("./pages/Collection"));
+const Info = lazy(() => import("./pages/Info"));
+function App() {
+  const { saved } = useStore();
+  const location = useLocation();
+  const [dark, setDark] = React.useState(() =>
+    readLocal(
+      "rb-dark",
+      window.matchMedia("(prefers-color-scheme: dark)").matches,
+    ),
+  );
+  const [menu, setMenu] = React.useState(false);
+  React.useEffect(() => {
+    document.documentElement.dataset.theme = dark ? "dark" : "light";
+    writeLocal("rb-dark", dark);
+  }, [dark]);
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+    setMenu(false);
+  }, [location.pathname]);
+  return (
+    <>
+      <header className="site-header">
+        <div className="header-inner">
+          <Link to="/" className="wordmark">
+            rent a baby<span>.</span>
+            <small>little people. big connections.</small>
+          </Link>
+          <nav className="desktop-nav" aria-label="Main navigation">
+            <NavLink to="/" end>
+              Find a family
+            </NavLink>
+            <NavLink to="/saved">
+              Saved
+              {saved.length > 0 && (
+                <span className="nav-count">{saved.length}</span>
+              )}
+            </NavLink>
+            <NavLink to="/mine">My listings</NavLink>
+          </nav>
+          <div className="header-actions">
+            <button
+              className="theme-toggle icon-button"
+              onClick={() => setDark(!dark)}
+              aria-label={`Switch to ${dark ? "light" : "dark"} mode`}
+            >
+              {dark ? <Sun size={19} /> : <Moon size={19} />}
+            </button>
+            <Link to="/post" className="button primary header-post">
+              <Plus size={17} />
+              Post a sitting request
+            </Link>
+            <button
+              className="mobile-menu icon-button"
+              onClick={() => setMenu(!menu)}
+              aria-label="Toggle menu"
+            >
+              {menu ? <X /> : <Menu />}
+            </button>
+          </div>
+        </div>
+        {menu && (
+          <nav className="mobile-dropdown">
+            <Link to="/safety">Safety tips</Link>
+            <Link to="/about">About us</Link>
+          </nav>
+        )}
+      </header>
+      <main>
+        <Suspense
+          fallback={<div className="page-loading">Making a little room…</div>}
+        >
+          <LayoutGroup>
+            <AnimatePresence initial={false} mode="popLayout">
+              <motion.div
+                key={location.pathname}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.18 }}
+              >
+                <Routes location={location}>
+                  <Route path="/" element={<Browse />} />
+                  <Route path="/l/:id" element={<Detail />} />
+                  <Route path="/post" element={<Post />} />
+                  <Route path="/edit/:id" element={<Post />} />
+                  <Route path="/saved" element={<Collection mode="saved" />} />
+                  <Route path="/mine" element={<Collection mode="mine" />} />
+                  <Route path="/safety" element={<Info kind="safety" />} />
+                  <Route path="/about" element={<Info kind="about" />} />
+                  <Route path="*" element={<Info kind="missing" />} />
+                </Routes>
+              </motion.div>
+            </AnimatePresence>
+          </LayoutGroup>
+        </Suspense>
+      </main>
+      <footer className="site-footer">
+        <div>
+          <Link to="/" className="footer-logo">
+            rent a baby<span>.</span>
+          </Link>
+          <span>A little help. A lot of heart.</span>
+        </div>
+        <p>
+          <ShieldCheck size={16} />
+          Always meet first and check references.{" "}
+          <Link to="/safety">Safety tips</Link>
+        </p>
+        <nav>
+          <Link to="/about">About</Link>
+          <span>Made for real life.</span>
+        </nav>
+      </footer>
+      {demoMode && (
+        <div className="demo-pill">
+          <span />
+          Demo mode: listings saved on this device only
+        </div>
+      )}
+      <nav className="bottom-nav" aria-label="Mobile navigation">
+        <NavLink to="/" end>
+          <Compass />
+          Browse
+        </NavLink>
+        <NavLink to="/saved">
+          <Heart />
+          Saved
+        </NavLink>
+        <NavLink to="/post">
+          <Plus />
+          Post
+        </NavLink>
+        <NavLink to="/mine">
+          <UserRound />
+          Mine
+        </NavLink>
+      </nav>
+    </>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")!).render(
+  <React.StrictMode>
+    <BrowserRouter>
+      <MotionConfig reducedMotion="user">
+        <StoreProvider>
+          <App />
+        </StoreProvider>
+      </MotionConfig>
+    </BrowserRouter>
+  </React.StrictMode>,
+);

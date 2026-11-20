@@ -1,9 +1,263 @@
-import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { MapPin, Heart, Share2, ShieldCheck, Flag, Mail, Phone, ChevronLeft, Check, Pencil } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { Dialog } from '../components/Dialog';
-import { Card, Empty } from '../components/Card';
-import { useStore } from '../lib/context';
-import { ageLabel, data, days, windows, isOwner, money, relativeTime } from '../lib/data';
-export default function Detail(){const {id}=useParams();const {listings,loading,saved,toggleSave,toast,error,refresh}=useStore();const [revealed,setRevealed]=useState(false);const [reported,setReported]=useState(false);const [reportOpen,setReportOpen]=useState(false);const l=listings.find(l=>l.id===id);if(loading)return <div className="page-loading">Finding your family…</div>;if(error)return <Empty text={error} action={<button className="button" onClick={()=>void refresh()}>Try again</button>}/>;if(!l)return <Empty title="This little request has moved on." text="It may have been removed. There are other lovely families to meet." action={<Link className="button primary" to="/">Browse requests</Link>}/>;const href=l.contact_method==='email'?`mailto:${l.contact_value}`:l.contact_method==='WhatsApp'?`https://wa.me/${l.contact_value.replace(/\D/g,'')}`:`tel:${l.contact_value}`;async function share(){try{if(navigator.share)await navigator.share({title:`A sitting request from ${l!.parent_first_name}`,url:window.location.href});else{await navigator.clipboard.writeText(window.location.href);toast('Link copied. Good things are better shared.');}}catch(e){if((e as Error).name!=='AbortError')toast('Copy this page’s address to share the request.');}}async function report(){try{await data.report(l!.id);setReported(true);setReportOpen(false);toast('Report saved. Thanks for looking out for the neighborhood.');}catch{toast('Couldn’t save your report. Please try again.');}}return <div className="standard-page detail-page"><div className="detail-top"><Link to="/" className="back-link"><ChevronLeft size={17}/>All sitting requests</Link><div><button className="button" onClick={()=>void share()}><Share2 size={16}/>Share</button><button className="button" onClick={()=>toggleSave(l.id)} aria-pressed={saved.includes(l.id)}><Heart size={16} fill={saved.includes(l.id)?'currentColor':'none'}/>{saved.includes(l.id)?'Saved':'Save'}</button>{isOwner(l.id)&&<Link to={`/edit/${l.id}`} className="button"><Pencil size={16}/>Edit</Link>}</div></div><div className="detail-layout"><motion.div layoutId={`photo-${l.id}`} className="detail-image"><img src={l.photo_url} onError={e=>{e.currentTarget.onerror=null;e.currentTarget.src='/photo-fallback.svg';}} alt={`A little glimpse of ${l.parent_first_name}'s family`}/><span>{ageLabel(l.child_age)} old</span></motion.div><div className="detail-content"><div className="eyebrow">A LITTLE HELP FOR</div><h1>{l.child_name||`${l.parent_first_name}'s family`}</h1><p className="location-line"><MapPin size={17}/>{l.location}<span>· {relativeTime(l.created_at)}</span></p><div className="detail-parent"><span className="parent-avatar">{l.parent_first_name[0]}</span><div>Say hello to {l.parent_first_name}<small>Parent · looking for a lovely sitter</small></div></div><h2>A little about us</h2><p className="description">{l.description}</p><div className="chips static-chips">{l.tags.map(t=><span key={t}>{t}</span>)}</div><h2>When we could use a hand</h2><div className="week-grid">{days.map(d=><div key={d} className={l.availability.includes(d)?'available':''}><span>{d}</span>{l.availability.includes(d)?<Check size={17}/>:<span>—</span>}</div>)}</div><div className="chips static-chips time-chips">{windows.filter(w=>l.availability.includes(w)).map(w=><span key={w}>{w}</span>)}</div><div className="contact-box"><div className="rate-line"><span><b>{money(l.hourly_rate,l.currency)}</b> / hour</span><small>{l.currency} · paid directly to you</small></div>{revealed?<a className="button primary contact-link" href={href} target={l.contact_method==='WhatsApp'?'_blank':undefined} rel="noreferrer">{l.contact_method==='email'?<Mail size={18}/>:<Phone size={18}/>} {l.contact_value}</a>:<button className="button primary" onClick={()=>setRevealed(true)}>Reveal contact · offer to sit</button>}<p><ShieldCheck size={15}/>A conversation first. A great fit next.</p></div><button className="report-link" disabled={reported} onClick={()=>setReportOpen(true)}><Flag size={13}/>{reported?'Report saved':'Report this listing'}</button></div></div><div className="similar"><h2>A few more little locals</h2><div className="listing-grid">{listings.filter(x=>x.id!==l.id).sort((a,b)=>Number(b.location===l.location)-Number(a.location===l.location)).slice(0,4).map(x=><Card key={x.id} listing={x}/>)}</div></div>{reportOpen&&<Dialog titleId="report-title" onClose={()=>setReportOpen(false)}><h2 id="report-title">Something doesn’t feel right?</h2><p>Flag this request if it appears misleading, inappropriate, or unsafe. Reports are stored for review; this is not an emergency service.</p><div className="form-actions"><button autoFocus className="button" onClick={()=>setReportOpen(false)}>Cancel</button><button className="button primary" onClick={()=>void report()}>Report listing</button></div></Dialog>}</div>}
+import { useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import {
+  MapPin,
+  Heart,
+  Share2,
+  ShieldCheck,
+  Flag,
+  Mail,
+  Phone,
+  ChevronLeft,
+  Check,
+  Pencil,
+} from "lucide-react";
+import { motion } from "framer-motion";
+import { Dialog } from "../components/Dialog";
+import { Card, Empty } from "../components/Card";
+import { useStore } from "../lib/context";
+import {
+  ageLabel,
+  data,
+  days,
+  windows,
+  isOwner,
+  money,
+  relativeTime,
+} from "../lib/data";
+export default function Detail() {
+  const { id } = useParams();
+  const { listings, loading, saved, toggleSave, toast, error, refresh } =
+    useStore();
+  const [revealed, setRevealed] = useState(false);
+  const [reported, setReported] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
+  const l = listings.find((l) => l.id === id);
+  if (loading) return <div className="page-loading">Finding your family…</div>;
+  if (error)
+    return (
+      <Empty
+        text={error}
+        action={
+          <button className="button" onClick={() => void refresh()}>
+            Try again
+          </button>
+        }
+      />
+    );
+  if (!l)
+    return (
+      <Empty
+        title="This little request has moved on."
+        text="It may have been removed. There are other lovely families to meet."
+        action={
+          <Link className="button primary" to="/">
+            Browse requests
+          </Link>
+        }
+      />
+    );
+  const href =
+    l.contact_method === "email"
+      ? `mailto:${l.contact_value}`
+      : l.contact_method === "WhatsApp"
+        ? `https://wa.me/${l.contact_value.replace(/\D/g, "")}`
+        : `tel:${l.contact_value}`;
+  async function share() {
+    try {
+      if (navigator.share)
+        await navigator.share({
+          title: `A sitting request from ${l!.parent_first_name}`,
+          url: window.location.href,
+        });
+      else {
+        await navigator.clipboard.writeText(window.location.href);
+        toast("Link copied. Good things are better shared.");
+      }
+    } catch (e) {
+      if ((e as Error).name !== "AbortError")
+        toast("Copy this page’s address to share the request.");
+    }
+  }
+  async function report() {
+    try {
+      await data.report(l!.id);
+      setReported(true);
+      setReportOpen(false);
+      toast("Report saved. Thanks for looking out for the neighborhood.");
+    } catch {
+      toast("Couldn’t save your report. Please try again.");
+    }
+  }
+  return (
+    <div className="standard-page detail-page">
+      <div className="detail-top">
+        <Link to="/" className="back-link">
+          <ChevronLeft size={17} />
+          All sitting requests
+        </Link>
+        <div>
+          <button className="button" onClick={() => void share()}>
+            <Share2 size={16} />
+            Share
+          </button>
+          <button
+            className="button"
+            onClick={() => toggleSave(l.id)}
+            aria-pressed={saved.includes(l.id)}
+          >
+            <Heart
+              size={16}
+              fill={saved.includes(l.id) ? "currentColor" : "none"}
+            />
+            {saved.includes(l.id) ? "Saved" : "Save"}
+          </button>
+          {isOwner(l.id) && (
+            <Link to={`/edit/${l.id}`} className="button">
+              <Pencil size={16} />
+              Edit
+            </Link>
+          )}
+        </div>
+      </div>
+      <div className="detail-layout">
+        <motion.div layoutId={`photo-${l.id}`} className="detail-image">
+          <img
+            src={l.photo_url}
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = "/photo-fallback.svg";
+            }}
+            alt={`A little glimpse of ${l.parent_first_name}'s family`}
+          />
+          <span>{ageLabel(l.child_age)} old</span>
+        </motion.div>
+        <div className="detail-content">
+          <div className="eyebrow">A LITTLE HELP FOR</div>
+          <h1>{l.child_name || `${l.parent_first_name}'s family`}</h1>
+          <p className="location-line">
+            <MapPin size={17} />
+            {l.location}
+            <span>· {relativeTime(l.created_at)}</span>
+          </p>
+          <div className="detail-parent">
+            <span className="parent-avatar">{l.parent_first_name[0]}</span>
+            <div>
+              Say hello to {l.parent_first_name}
+              <small>Parent · looking for a lovely sitter</small>
+            </div>
+          </div>
+          <h2>A little about us</h2>
+          <p className="description">{l.description}</p>
+          <div className="chips static-chips">
+            {l.tags.map((t) => (
+              <span key={t}>{t}</span>
+            ))}
+          </div>
+          <h2>When we could use a hand</h2>
+          <div className="week-grid">
+            {days.map((d) => (
+              <div
+                key={d}
+                className={l.availability.includes(d) ? "available" : ""}
+              >
+                <span>{d}</span>
+                {l.availability.includes(d) ? (
+                  <Check size={17} />
+                ) : (
+                  <span>—</span>
+                )}
+              </div>
+            ))}
+          </div>
+          <div className="chips static-chips time-chips">
+            {windows
+              .filter((w) => l.availability.includes(w))
+              .map((w) => (
+                <span key={w}>{w}</span>
+              ))}
+          </div>
+          <div className="contact-box">
+            <div className="rate-line">
+              <span>
+                <b>{money(l.hourly_rate, l.currency)}</b> / hour
+              </span>
+              <small>{l.currency} · paid directly to you</small>
+            </div>
+            {revealed ? (
+              <a
+                className="button primary contact-link"
+                href={href}
+                target={l.contact_method === "WhatsApp" ? "_blank" : undefined}
+                rel="noreferrer"
+              >
+                {l.contact_method === "email" ? (
+                  <Mail size={18} />
+                ) : (
+                  <Phone size={18} />
+                )}{" "}
+                {l.contact_value}
+              </a>
+            ) : (
+              <button
+                className="button primary"
+                onClick={() => setRevealed(true)}
+              >
+                Reveal contact · offer to sit
+              </button>
+            )}
+            <p>
+              <ShieldCheck size={15} />A conversation first. A great fit next.
+            </p>
+          </div>
+          <button
+            className="report-link"
+            disabled={reported}
+            onClick={() => setReportOpen(true)}
+          >
+            <Flag size={13} />
+            {reported ? "Report saved" : "Report this listing"}
+          </button>
+        </div>
+      </div>
+      <div className="similar">
+        <h2>A few more little locals</h2>
+        <div className="listing-grid">
+          {listings
+            .filter((x) => x.id !== l.id)
+            .sort(
+              (a, b) =>
+                Number(b.location === l.location) -
+                Number(a.location === l.location),
+            )
+            .slice(0, 4)
+            .map((x) => (
+              <Card key={x.id} listing={x} />
+            ))}
+        </div>
+      </div>
+      {reportOpen && (
+        <Dialog titleId="report-title" onClose={() => setReportOpen(false)}>
+          <h2 id="report-title">Something doesn’t feel right?</h2>
+          <p>
+            Flag this request if it appears misleading, inappropriate, or
+            unsafe. Reports are stored for review; this is not an emergency
+            service.
+          </p>
+          <div className="form-actions">
+            <button
+              autoFocus
+              className="button"
+              onClick={() => setReportOpen(false)}
+            >
+              Cancel
+            </button>
+            <button className="button primary" onClick={() => void report()}>
+              Report listing
+            </button>
+          </div>
+        </Dialog>
+      )}
+    </div>
+  );
+}
